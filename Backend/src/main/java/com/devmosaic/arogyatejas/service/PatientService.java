@@ -7,11 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface PatientService { 
    public ResponseEntity<?> loadDashboard(String authHeader);
-
-   public ResponseEntity<?> getAvailableDoctors(String authHeader);
-
+   public ResponseEntity<?> getAvailableDoctors(String speciality);
+   public ResponseEntity<?> cancelAppointment(String authHeader, String appointmentId);
    public ResponseEntity<?> setAppointment(String authHeader, PatientAppointmentRequestDto dto);
-
-
-   
 }

@@ -1,6 +1,7 @@
 package com.devmosaic.arogyatejas.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,9 +9,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DoctorAvailabilityDto {
-    private String firstName;
-    private String lastName;
+    private UUID doctorId;
+    private String fullName;
     private String speciality;
-    private int experience;
-    private LocalDate nextAvailability;
+    private Integer experience;
+    private LocalDateTime nextAvailabilityStart;
+    private LocalDateTime nextAvailabilityEnd;
 }

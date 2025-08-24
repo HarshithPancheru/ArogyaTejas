@@ -1,19 +1,23 @@
 package com.devmosaic.arogyatejas.service.impl;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.devmosaic.arogyatejas.dto.FutureAppointmentDto;
+import com.devmosaic.arogyatejas.dto.PatientDashboardResponseDto;
 import com.devmosaic.arogyatejas.model.Appointment;
-import com.devmosaic.arogyatejas.model.Patient;
+import com.devmosaic.arogyatejas.model.AppointmentStatus;
+import com.devmosaic.arogyatejas.model.Doctor;
+import com.devmosaic.arogyatejas.model.Role;
+import com.devmosaic.arogyatejas.model.User;
 import com.devmosaic.arogyatejas.repository.AppointmentRepository;
+import com.devmosaic.arogyatejas.repository.DoctorRepository;
 import com.devmosaic.arogyatejas.security.JwtUtil;
 import com.devmosaic.arogyatejas.service.*;
 
@@ -26,52 +30,91 @@ public class DoctorServiceImpl implements DoctorService {
     private AppointmentRepository appointmentRepository;
 
     @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
+    @Override
     public ResponseEntity<?> loadDashboard(String authHeader) {
-
-        if(authHeader==null) return ResponseEntity.status(401).body("Unauthorized");
+        if (authHeader == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
         String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
-        Map<String, Object> claims = jwtUtil.extractAllClaims(token);
+        Optional<User> userOptional = jwtUtil.extractAllClaims(token);
+        if (!userOptional.isPresent() || !userOptional.get().getRole().equals(Role.DOCTOR))
+            return ResponseEntity.status(401).body("Unauthorized");
+        
+        User user = userOptional.get();
+        Doctor doctor = doctorRepository.findByUser(user).getFirst();
 
-        // Get userId from claims
-        Long userId = Long.parseLong(claims.get("userId").toString());
+        List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
-        List<Appointment> appointments = appointmentRepository.findFutureAppointmentsByDoctor(userId, now);
+        PatientDashboardResponseDto dashboard = new PatientDashboardResponseDto(doctor.getUser().getFullName(),
+                appointments);
 
-        appointments.stream().map(appointment -> {
-            Patient patient = appointment.getPatient();
-            FutureAppointmentDto dto = new FutureAppointmentDto();
-            dto.setAppointmentId(appointment.getId());
-            dto.setPatientFirstName(patient.getFirstName());
-            dto.setPatientLastName(patient.getLastName());
-            dto.setPatientPhone(patient.getMobile());
-            dto.setAppointmentDate(appointment.getCreatedOn());
-            dto.setStatus(appointment.getStatus());
-            return dto;
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(dashboard);
     }
 
     @Transactional
-    public ResponseEntity<?> setStatus(String authHeader, Long id) {
+    @Override
+    public ResponseEntity<?> setStatus(String authHeader, UUID appointmentId) {
+        if (authHeader == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
 
-        
-        if(authHeader==null) return ResponseEntity.status(401).body("Unauthorized");
         String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
-        Map<String, Object> claims = jwtUtil.extractAllClaims(token);
+        Optional<User> userOptional = jwtUtil.extractAllClaims(token);
 
-        // Get userId from claims
-        Long userId = Long.parseLong(claims.get("userId").toString());
+        if (!userOptional.isPresent() || !userOptional.get().getRole().equals(Role.DOCTOR))
+            return ResponseEntity.status(401).body("Unauthorized");
 
-        int result = appointmentRepository.setStatus(userId, id, "canceled");
+        User user = userOptional.get();
 
-        if (result > 0)
-            return ResponseEntity.ok(Map.of("message", "appointment canceled"));
-        else
-            return ResponseEntity.ok(Map.of("message", "failed to cancel appointment"));
+        Doctor doctor = doctorRepository.findByUser(user).getFirst();
 
+        int result = appointmentRepository.updateStatusAndTime(doctor.getId(), appointmentId, AppointmentStatus.CANCELED,
+                LocalDateTime.now());
+
+        if (result > 0) {
+            return ResponseEntity.ok(Map.of("message", "Appointment canceled"));
+        } else {
+            return ResponseEntity.ok(Map.of("message", "Failed to cancel appointment"));
+        }
     }
+
+    @Override
+    public ResponseEntity<?> getSpecialities(){
+        return ResponseEntity.ok(doctorRepository.findDistinctSpecialities());
+    }
+
+
+
+   public ResponseEntity<?> updateAppointmentStatus(String authHeader, String appointmentId, String status){
+    if (authHeader == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        Optional<User> userOptional = jwtUtil.extractAllClaims(token);
+        if (!userOptional.isPresent() || !userOptional.get().getRole().equals(Role.DOCTOR))
+            return ResponseEntity.status(401).body("Unauthorized");
+        
+        User user = userOptional.get();
+        Doctor doctor = doctorRepository.findByUser(user).getFirst();
+
+        Appointment appointment = appointmentRepository.getReferenceById(UUID.fromString(appointmentId));
+
+        if(!appointment.getDoctor().equals(doctor)){
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+System.out.println(AppointmentStatus.valueOf(status));
+        appointment.setStatus(AppointmentStatus.valueOf(status));
+        appointmentRepository.save(appointment);
+
+        return ResponseEntity.ok().build();
+   }
+
+
+
+
 }

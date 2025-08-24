@@ -19,8 +19,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    
-
     @PostMapping("/patient/register")
     public ResponseEntity<AuthResponseDto> registerPatient(@Valid @RequestBody PatientRegistrationDto dto) {
         return authService.registerPatient(dto);
@@ -32,8 +30,8 @@ public class AuthController {
     }
 
     @PostMapping("/doctor/register")
-    public ResponseEntity<AuthResponseDto> registerDoctor(@Valid @RequestBody DoctorRegistrationDto dto) {
-        return authService.registerDoctor(dto);
+    public ResponseEntity<?> registerDoctor(@RequestHeader("Authorization") String authHeader,@Valid @RequestBody DoctorRegistrationDto dto) {
+        return authService.registerDoctor(authHeader, dto);
     }
 
     @PostMapping("/login")

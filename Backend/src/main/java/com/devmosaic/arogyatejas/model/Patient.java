@@ -1,45 +1,31 @@
 // Source code is decompiled from a .class file using FernFlower decompiler.
 package com.devmosaic.arogyatejas.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UuidGenerator;
 
-@Data
+import java.time.LocalDate;
+import java.util.UUID;
+
 @Entity
+@Data
+@Table(name = "patients")
 public class Patient {
-   @Id
-   @GeneratedValue(
-      strategy = GenerationType.IDENTITY
-   )
-   private Long id;
-   private String firstName;
-   private String lastName;
-   private LocalDate dob;
-   private String mobile;
-   @Column(
-      unique = true
-   )
-   private String email;
-   private String password;
-   private String gender;
-   private LocalDateTime createdOn;
+    @Id
+    @UuidGenerator
+    @Column(updatable = false, nullable = false)
+    private UUID patientId;
 
-   @PrePersist
-   public void prePersist() {
-      if (this.createdOn == null) {
-         ZonedDateTime istNow = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
-         this.createdOn = istNow.toLocalDateTime();
-      }
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    private User user;
 
-   }
+    private LocalDate dateOfBirth;
+
+    private String gender;
+
+    private String phone;
+
+    private String address;
 }

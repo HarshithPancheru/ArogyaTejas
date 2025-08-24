@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
    @ExceptionHandler({EmailAlreadyExistsException.class, InvalidEmailOrPasswordException.class})
    public ResponseEntity<AuthResponseDto> handleAuthExceptions(RuntimeException ex) {
-      AuthResponseDto errorResponse = new AuthResponseDto(null, null, ex.getMessage());
+      AuthResponseDto errorResponse = new AuthResponseDto(null, null, null,ex.getMessage());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
    }
 

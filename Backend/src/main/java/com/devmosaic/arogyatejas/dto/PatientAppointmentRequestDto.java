@@ -1,6 +1,7 @@
 package com.devmosaic.arogyatejas.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import io.micrometer.common.lang.NonNull;
 import lombok.Data;
@@ -8,8 +9,8 @@ import lombok.Data;
 @Data
 public class PatientAppointmentRequestDto {
     @NonNull
-    private LocalDate date;
+    private LocalDateTime date;
     
     @NonNull
-    private Long doctorId;
+    private UUID doctorId;
 }

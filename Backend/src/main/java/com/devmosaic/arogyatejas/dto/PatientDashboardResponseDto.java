@@ -11,8 +11,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class PatientDashboardResponseDto {
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private List<Appointment> appointments;
 }
-

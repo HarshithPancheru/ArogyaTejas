@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 public interface AuthService {
    ResponseEntity<AuthResponseDto> registerPatient(PatientRegistrationDto dto);
 
-   ResponseEntity<AuthResponseDto> registerDoctor(DoctorRegistrationDto dto);
+   ResponseEntity<?> registerDoctor(String authHeader, DoctorRegistrationDto dto);
 
    ResponseEntity<AuthResponseDto> registerAdmin(AdminRegistrationDto dto);
 

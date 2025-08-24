@@ -26,12 +26,17 @@ public class PatientController {
 
 
     @GetMapping("/doctors-available")
-    public ResponseEntity<?> getAvailableDoctors(@RequestHeader("Authorization") String authHeader) {
-        return patientService.getAvailableDoctors(authHeader);
+    public ResponseEntity<?> getAvailableDoctors(@RequestParam("speciality")  String speciality) {
+        return patientService.getAvailableDoctors(speciality);
     }
 
     @PostMapping("/appointment")
     public ResponseEntity<?> setAppointment(@RequestHeader("Authorization") String authHeader,@Valid @RequestBody PatientAppointmentRequestDto dto) {
         return patientService.setAppointment(authHeader, dto);
+    }   
+
+    @DeleteMapping("/appointment")
+    public ResponseEntity<?> cancelAppointment(@RequestHeader("Authorization") String authHeader,@RequestParam("appointmentId") String appointmrntId) {
+        return patientService.cancelAppointment(authHeader, appointmrntId);
     }   
 }

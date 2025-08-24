@@ -1,15 +1,17 @@
 package com.devmosaic.arogyatejas.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import com.devmosaic.arogyatejas.model.AppointmentStatus;
 
 import lombok.Data;
 
 @Data
 public class FutureAppointmentDto {
-    private Long appointmentId;
-    private String patientFirstName;
-    private String patientLastName;
+    private UUID appointmentId;
+    private String patientFullName;
     private String patientPhone;
     private LocalDateTime appointmentDate;
-    private String status;
+    AppointmentStatus status;
 }

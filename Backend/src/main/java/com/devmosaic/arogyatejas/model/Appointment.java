@@ -1,40 +1,46 @@
-// Source code is decompiled from a .class file using FernFlower decompiler.
 package com.devmosaic.arogyatejas.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
+@Table(name = "appointments")
 public class Appointment {
-   @Id
-   @GeneratedValue(
-      strategy = GenerationType.IDENTITY
-   )
-   private Long id;
-   @ManyToOne
-   private Patient patient;
-   @ManyToOne
-   private Doctor doctor;
-   private LocalDateTime createdOn;
-   private String status;
-   private LocalDateTime dateTime;
+    @Id
+    @UuidGenerator
+    @Column(updatable = false, nullable = false)
+    private UUID appointmentId;
 
-   @PrePersist
-   public void prePersist() {
-      if (this.createdOn == null) {
-         ZonedDateTime istNow = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
-         this.createdOn = istNow.toLocalDateTime();
-      }
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
 
-   }
+    @ManyToOne
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+    private String notes;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "appointment_date_time")
+    private LocalDateTime appointmentDateTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AppointmentStatus status = AppointmentStatus.PENDING;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
