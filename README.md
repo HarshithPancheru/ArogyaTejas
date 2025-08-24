@@ -33,7 +33,7 @@ ArogyaTejas is a modern, full-stack web application designed to streamline booki
 |------------|-----------------------------------------------------------------------------|
 | Frontend   | React, TypeScript, (Vite or CRA), Axios                                    |
 | Backend    | Spring Boot, Spring Web, Spring Security, Spring Data JPA                  |
-| Database   | PostgreSQL                                                                  |
+| Database   | MySQL                                                                  |
 | API Client | REST (JSON over HTTP), Axios (frontend), Spring REST Controllers (backend) |
 
 > Replace or extend the above with your project’s exact libs as needed.
@@ -49,7 +49,7 @@ Follow these steps to run the project locally for development and testing.
 - **Maven 3.6+**
 - **Node.js 18+**
 - **npm 9+**
-- **A running PostgreSQL instance**
+- **A running MySQL instance**
 
 ---
 
@@ -72,3 +72,54 @@ cd <backend-folder>
 # Build and run the project
 mvn clean install
 mvn spring-boot:run
+```
+
+### 2) Frontend Setup (React)
+```bash
+# Clone the frontend repository
+git clone <your-frontend-repo-url>
+cd <frontend-folder>
+
+# Install dependencies
+npm install
+
+# Create a .env file in the root and add the API URL
+echo "VITE_API_BASE_URL=http://localhost:5000/api" > .env
+
+# Start the development server
+npm run dev
+
+```
+
+## 🛣️ API Endpoints – Brief Overview
+
+Here’s a high-level look at the core API endpoints grouped by role:
+
+### 🔑 Authentication
+| Method | Endpoint                     | Description                        |
+|--------|-------------------------------|------------------------------------|
+| POST   | `/api/auth/login`            | Authenticates a user & returns JWT |
+| POST   | `/api/auth/patient/register` | Registers a new patient account    |
+| POST   | `/api/auth/doctor/register`  | (Admin) Registers a new doctor     |
+
+### 👤 Patient
+| Method | Endpoint                          | Description                       |
+|--------|-----------------------------------|-----------------------------------|
+| GET    | `/api/patient/dashboard`          | Fetches patient’s dashboard data  |
+| POST   | `/api/patient/appointment`        | Books a new appointment           |
+| DELETE | `/api/cancel?appointmentId={id}`  | Cancels a scheduled appointment   |
+
+### 🧑‍⚕️ Doctor
+| Method | Endpoint                                 | Description                           |
+|--------|------------------------------------------|---------------------------------------|
+| GET    | `/api/doctor/dashboard`                  | Fetches doctor’s dashboard data       |
+| PUT    | `/api/doctor/appointment/{id}/status`    | Updates appointment status (Accept/Reject/Finish) |
+
+### ⚙️ Admin
+| Method | Endpoint                  | Description                           |
+|--------|---------------------------|---------------------------------------|
+| GET    | `/api/admin/dashboard`    | Fetches admin dashboard data          |
+| POST   | `/api/auth/doctor/register` | Creates doctor accounts (Admin only)  |
+| CRUD   | `/api/admin/appointment`  | Manage (Create, Update, Delete) appointments |
+
+---
